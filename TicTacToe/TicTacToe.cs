@@ -11,6 +11,7 @@ namespace TicTacToe
         Texture2D _line, _circle, _cross;
 
         int[,] _gameTable;
+        private bool _isCircleTurn;
 
         public TicTacToe()
         {
@@ -43,15 +44,36 @@ namespace TicTacToe
 
         protected override void Update(GameTime gameTime)
         {
+            // Handle inputs
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             MouseState state = Mouse.GetState();
 
+            // Update values in game
             if (state.LeftButton == ButtonState.Pressed)
             {
                 //TODO: do clicking
-                //if ()
+                int iPos = state.X / 200;
+                int jPos = state.Y / 200;
+
+                if (iPos >= 0 && iPos < 3 && jPos >= 0 && jPos < 3)
+                {
+                    //check feasibility
+                    if (_gameTable[iPos, jPos] == 0)
+                    {
+                        if (_isCircleTurn)
+                        {
+                            _gameTable[jPos, iPos] = 1;
+                            _isCircleTurn = false;
+                        }
+                        else
+                        {
+                            _gameTable[jPos, iPos] = -1;
+                            _isCircleTurn = true;
+                        }
+                    }
+                }
             }
 
             //TODO: check winning condition
@@ -60,6 +82,10 @@ namespace TicTacToe
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -67,13 +93,32 @@ namespace TicTacToe
             _spriteBatch.Begin();
 
             //TODO: Draw circle and Cross
-
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (_gameTable[i, j] == 1)
+                    {
+                        //circle
+                        _spriteBatch.Draw(_circle, new Vector2(200 * j, 200 * i),
+                        null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                    }
+                    else if (_gameTable[i, j] == -1)
+                    {
+                        //cross
+                        _spriteBatch.Draw(_cross, new Vector2(200 * j, 200 * i), null,
+                        Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                    }
+                }
+            }
 
             //Draw Lines for game board
+
+            // X axis
             _spriteBatch.Draw(_line, new Vector2(0, 200), null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             _spriteBatch.Draw(_line, new Vector2(0, 400), null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
-
+            // Y axis
             _spriteBatch.Draw(_line, new Vector2(200, 0), null, Color.White, MathHelper.Pi / 2, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             _spriteBatch.Draw(_line, new Vector2(400, 0), null, Color.White, MathHelper.Pi / 2, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
